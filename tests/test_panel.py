@@ -13,6 +13,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+INSTALLER_TEMPLATE = ROOT / "install.template.sh"
 SPEC = importlib.util.spec_from_file_location("vless_lite_panel", ROOT / "panel.py")
 assert SPEC is not None and SPEC.loader is not None
 panel = importlib.util.module_from_spec(SPEC)
@@ -70,6 +71,13 @@ class LinkTests(unittest.TestCase):
         self.assertIn('public-key: "public-key-value"', subscription)
         self.assertIn('short-id: "0011223344556677"', subscription)
         self.assertIn("- MATCH,PROXY", subscription)
+
+
+class InstallerTests(unittest.TestCase):
+    def test_defaults_are_compatible_with_mihomo(self) -> None:
+        template = INSTALLER_TEMPLATE.read_text(encoding="utf-8")
+        self.assertIn('"minClientVer": "0.0.0"', template)
+        self.assertIn('sni="${sni:-www.apple.com}"', template)
 
 
 class StatsTests(unittest.TestCase):

@@ -24,6 +24,7 @@ Python 标准库编写的管理进程。
 - 自动生成手机可导入的 `vless://` 分享链接
 - 自动生成 Clash Meta/Mihomo 可直接导入的 YAML 订阅链接
 - 保留 Base64 VLESS 订阅兼容接口
+- 显式兼容 Clash/Mihomo 的 REALITY 客户端版本标识
 - WebUI Basic Auth 登录
 - 下载/上传总流量和实时速度
 - 当前 TCP 连接数
@@ -85,6 +86,9 @@ WebUI 显示的订阅地址可直接添加到 Mihomo Party、Clash Verge Rev 等
 订阅地址通过 48 字节随机令牌访问，不需要 WebUI 账号密码。轮换节点凭据后，订阅 URL
 保持不变，订阅内容自动更新；原 VLESS 链接会立即失效。需要旧式 Base64 VLESS 列表时，
 使用 `/sub/base64/<订阅令牌>` 兼容接口。
+
+安装器默认使用 `www.apple.com` 作为 REALITY 伪装站。自定义伪装域名必须支持 TLS 1.3，
+并且需要与当前 Xray REALITY 握手实现兼容；部分证书链过大的站点可能导致握手失败。
 
 ## 文件位置
 

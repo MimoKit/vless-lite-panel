@@ -213,6 +213,7 @@ xray = {
                     "xver": 0,
                     "serverNames": [env("VLP_SNI")],
                     "privateKey": env("VLP_PRIVATE_KEY"),
+                    "minClientVer": "0.0.0",
                     "shortIds": [env("VLP_SHORT_ID")],
                 },
             },
@@ -405,8 +406,8 @@ main() {
     ui_port="$(prompt_port 'WebUI 对外端口' '2053' '1024')"
     [[ "$vpn_port" != "$ui_port" ]] || die "VLESS 和 WebUI 不能使用同一端口。"
 
-    read -r -p "REALITY 伪装域名 [www.microsoft.com]: " sni
-    sni="${sni:-www.microsoft.com}"
+    read -r -p "REALITY 伪装域名 [www.apple.com]: " sni
+    sni="${sni:-www.apple.com}"
     valid_host "$sni" || die "伪装域名格式无效。"
     [[ "$sni" != *:* ]] || die "伪装域名不要填写端口。"
 
