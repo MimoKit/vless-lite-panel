@@ -25,6 +25,7 @@ Python 标准库编写的管理进程。
 - 自动生成 Clash Meta/Mihomo 可直接导入的 YAML 订阅链接
 - 保留 Base64 VLESS 订阅兼容接口
 - 显式兼容 Clash/Mihomo 的 REALITY 客户端版本标识
+- 内置 Fake-IP 和代理 DoH，避免本地 DNS 污染及异常 IPv6 解析
 - WebUI Basic Auth 登录
 - 下载/上传总流量和实时速度
 - 当前 TCP 连接数
@@ -81,7 +82,8 @@ sudo ./install.sh
 
 WebUI 显示的订阅地址可直接添加到 Mihomo Party、Clash Verge Rev 等使用 Mihomo/Clash Meta
 内核的客户端。订阅内容包含 VLESS + REALITY + XTLS Vision 节点、`PROXY` 策略组和默认
-`MATCH` 规则。
+`MATCH` 规则。DNS 默认使用 Fake-IP，关闭 IPv6 解析，并通过节点访问 Cloudflare 和 Google
+DoH，避免 Google 等站点被本地 DNS 解析到错误地址。
 
 订阅地址通过 48 字节随机令牌访问，不需要 WebUI 账号密码。轮换节点凭据后，订阅 URL
 保持不变，订阅内容自动更新；原 VLESS 链接会立即失效。需要旧式 Base64 VLESS 列表时，

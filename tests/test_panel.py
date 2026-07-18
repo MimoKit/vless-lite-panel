@@ -70,6 +70,9 @@ class LinkTests(unittest.TestCase):
         self.assertIn("flow: xtls-rprx-vision", subscription)
         self.assertIn('public-key: "public-key-value"', subscription)
         self.assertIn('short-id: "0011223344556677"', subscription)
+        self.assertIn("enhanced-mode: fake-ip", subscription)
+        self.assertIn('https://1.1.1.1/dns-query#PROXY', subscription)
+        self.assertIn("ipv6: false", subscription)
         self.assertIn("- MATCH,PROXY", subscription)
 
 
