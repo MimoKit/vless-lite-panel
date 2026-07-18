@@ -101,6 +101,55 @@ def subscription_url(config: dict[str, Any]) -> str:
     return f"{panel_base_url(config)}/sub/{config['subscription_token']}"
 
 
+def legacy_subscription_url(config: dict[str, Any]) -> str:
+    return f"{panel_base_url(config)}/sub/base64/{config['subscription_token']}"
+
+
+def yaml_string(value: Any) -> str:
+    """Return a JSON string, which is also a safely quoted YAML scalar."""
+    return json.dumps(str(value), ensure_ascii=False)
+
+
+def clash_subscription(config: dict[str, Any]) -> str:
+    node_name = str(config.get("node_name", "VLESS Lite"))
+    quoted_name = yaml_string(node_name)
+    lines = [
+        "# VLESS Lite subscription for Mihomo / Clash Meta",
+        "mixed-port: 7890",
+        "allow-lan: false",
+        "mode: rule",
+        "log-level: info",
+        "ipv6: true",
+        "profile:",
+        "  store-selected: true",
+        "proxies:",
+        f"  - name: {quoted_name}",
+        "    type: vless",
+        f"    server: {yaml_string(config['public_host'])}",
+        f"    port: {int(config['vpn_port'])}",
+        f"    uuid: {yaml_string(config['uuid'])}",
+        '    encryption: ""',
+        "    network: tcp",
+        "    udp: true",
+        "    tls: true",
+        "    flow: xtls-rprx-vision",
+        f"    servername: {yaml_string(config['sni'])}",
+        "    client-fingerprint: chrome",
+        "    reality-opts:",
+        f"      public-key: {yaml_string(config['public_key'])}",
+        f"      short-id: {yaml_string(config['short_id'])}",
+        "proxy-groups:",
+        "  - name: PROXY",
+        "    type: select",
+        "    proxies:",
+        f"      - {quoted_name}",
+        "      - DIRECT",
+        "rules:",
+        "  - MATCH,PROXY",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def run_command(args: list[str], timeout: int = 10) -> tuple[int, str]:
     try:
         result = subprocess.run(
@@ -281,7 +330,7 @@ button{border:1px solid var(--line);border-radius:5px;background:#fff;color:#172
 <section class="section">
   <h2>连接信息</h2>
   <div class="row"><label>手机分享链接</label><div class="code" id="vlessLink">-</div><button onclick="copyValue('vlessLink')">复制</button></div>
-  <div class="row"><label>订阅链接</label><div class="code" id="subLink">-</div><button onclick="copyValue('subLink')">复制</button></div>
+  <div class="row"><label>Clash/Mihomo 订阅</label><div class="code" id="subLink">-</div><button onclick="copyValue('subLink')">复制</button></div>
   <div class="row"><label>节点地址</label><div class="code" id="endpoint">-</div><button onclick="copyValue('endpoint')">复制</button></div>
 </section>
 
@@ -424,8 +473,15 @@ class Handler(BaseHTTPRequestHandler):
         path = urllib.parse.urlsplit(self.path).path
 
         sub_prefix = f"/sub/{config['subscription_token']}"
+        legacy_sub_prefix = f"/sub/base64/{config['subscription_token']}"
         link_prefix = f"/vless/{config['subscription_token']}"
         if hmac.compare_digest(path, sub_prefix):
+            self.send_bytes(
+                clash_subscription(config).encode("utf-8"),
+                "text/yaml; charset=utf-8",
+            )
+            return
+        if hmac.compare_digest(path, legacy_sub_prefix):
             encoded = base64.b64encode((vless_link(config) + "\n").encode("utf-8"))
             self.send_bytes(encoded, "text/plain; charset=utf-8")
             return

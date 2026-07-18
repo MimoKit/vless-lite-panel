@@ -345,7 +345,7 @@ print_result() {
     printf 'WebUI:       %s\n' "$panel_url"
     printf '管理员账号:  %s\n' "$admin_user"
     printf '管理员密码:  %s\n' "$admin_password"
-    printf '订阅链接:    %s\n' "$sub_url"
+    printf 'Clash订阅:   %s\n' "$sub_url"
     printf 'VLESS 链接:  %s\n' "$vless_uri"
     printf '%s\n' '------------------------------------------------------------'
     printf '节点端口: %s/TCP    WebUI端口: %s/TCP\n' "$vpn_port" "$ui_port"

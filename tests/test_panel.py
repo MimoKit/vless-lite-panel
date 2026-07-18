@@ -61,6 +61,16 @@ class LinkTests(unittest.TestCase):
         self.assertIn("@[2001:db8::1]:443?", panel.vless_link(config))
         self.assertTrue(panel.subscription_url(config).startswith("http://[2001:db8::1]:2053/"))
 
+    def test_clash_subscription_contains_reality_node(self) -> None:
+        subscription = panel.clash_subscription(sample_config())
+        self.assertIn('name: "Test Node"', subscription)
+        self.assertIn("type: vless", subscription)
+        self.assertIn('encryption: ""', subscription)
+        self.assertIn("flow: xtls-rprx-vision", subscription)
+        self.assertIn('public-key: "public-key-value"', subscription)
+        self.assertIn('short-id: "0011223344556677"', subscription)
+        self.assertIn("- MATCH,PROXY", subscription)
+
 
 class StatsTests(unittest.TestCase):
     def test_current_json_stats(self) -> None:
@@ -115,6 +125,12 @@ class HttpTests(unittest.TestCase):
 
     def test_subscription_needs_only_secret_token(self) -> None:
         with urllib.request.urlopen(f"{self.base}/sub/{'a' * 48}", timeout=3) as response:
+            self.assertEqual(response.headers.get_content_type(), "text/yaml")
+            subscription = response.read().decode()
+        self.assertEqual(subscription, panel.clash_subscription(sample_config()))
+
+    def test_legacy_base64_subscription_remains_available(self) -> None:
+        with urllib.request.urlopen(f"{self.base}/sub/base64/{'a' * 48}", timeout=3) as response:
             decoded = base64.b64decode(response.read()).decode()
         self.assertEqual(decoded.strip(), panel.vless_link(sample_config()))
 
